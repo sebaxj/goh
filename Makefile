@@ -1,12 +1,10 @@
 .PHONY: run build
 
-OS ?= "darwin"
-
 run:
 	go run main.go
 
 build:
-	CGO_ENABLED=0 GOOS=$(OS) go build
+	CGO_ENABLED=0 $(GOOS) go build
 
 docker:
 	docker build -t goh .

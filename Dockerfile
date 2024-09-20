@@ -5,4 +5,4 @@ WORKDIR /app
 COPY . .
 RUN go mod download
 
-RUN OS="linux" make build
+RUN GOOS="GOOS=linux" make build

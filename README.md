@@ -12,8 +12,14 @@ $ make run
 
 ## Building
 
-To build:
+### To build locally using the system Golang version:
 
 ```shell
 $ make build
+```
+
+### To build using Docker:
+
+```shell
+$ make docker
 ```
