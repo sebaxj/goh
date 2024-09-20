@@ -185,7 +185,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *model) View() string {
   if m.loading {
-    return fmt.Sprintf("%s Submitting request...\n\n%s", m.spinner.View(), m.response)
+    return fmt.Sprintf("%s Submitting request...", m.spinner.View())
   }
 
   if m.submenuVisible {
