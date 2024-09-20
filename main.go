@@ -29,6 +29,7 @@ type model struct {
   listChoices list.Model
   loading bool
   spinner spinner.Model
+  history []string
 }
 
 type methodItem string
@@ -55,7 +56,7 @@ func main() {
   }
 }
 
-func initModel() model {
+func initModel() *model {
   // text input
   ti := textinput.New()
   ti.Placeholder = "Enter URL..."
@@ -75,7 +76,7 @@ func initModel() model {
   s := spinner.New()
   s.Spinner = spinner.Line
 
-  return model{
+  return &model{
     options: []string{"URL", "Method", "", buttonStyle.Render("Submit Request")},
     cursor: 0,
     url: ti,
@@ -89,7 +90,7 @@ func (m model) Init() tea.Cmd {
   return textinput.Blink
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   switch msg := msg.(type) {
   case tea.KeyMsg:
     // this is a key press
@@ -182,7 +183,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
   return m, nil
 }
 
-func (m model) View() string {
+func (m *model) View() string {
   if m.loading {
     return fmt.Sprintf("%s Submitting request...\n\n%s", m.spinner.View(), m.response)
   }
@@ -197,6 +198,14 @@ func (m model) View() string {
   }
 
   var b strings.Builder
+
+  // Display the request history
+  if len(m.history) > 0 {
+    for _, req := range m.history {
+      b.WriteString(req + "\n\n")
+    }
+  }
+
   for i, option := range m.options {
     if i == m.cursor {
       fmt.Fprintf(&b, "→ %s\n", promptStyle.Render(option))
@@ -217,7 +226,7 @@ func (m model) View() string {
   return b.String() + "\nPress CTRL-c to quit."
 }
 
-func (m model) makeHttpRequest() tea.Cmd {
+func (m *model) makeHttpRequest() tea.Cmd {
   url := m.url.Value()
   method := m.method
   if "" == url {
@@ -255,6 +264,11 @@ func (m model) makeHttpRequest() tea.Cmd {
       return "Error formatting JSON response"
     }
 
-    return prettyJSON.String()
+    // append request to history
+    prettyJSONstr := prettyJSON.String()
+    m.history = append(m.history, fmt.Sprintf("URL:\t%s\nMethod:\t%s\nResponse:\n%s", answerStyle.Render(url), answerStyle.Render(method), responseStyle.Render(prettyJSONstr)))
+    m.response = prettyJSONstr
+
+    return m.response
   }
 }
