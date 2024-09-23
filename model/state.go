@@ -296,7 +296,10 @@ func (s *state) makeHttpRequest() tea.Cmd {
     if nil == body {
       req, err = http.NewRequest(method, url, nil)
     } else {
-      req, err = http.NewRequest(method, url, body)
+      if req, err = http.NewRequest(method, url, body); nil == err {
+        // set body type
+        req.Header.Set("Content-Type", "application/json")
+      }
     }
 
     if err != nil {
